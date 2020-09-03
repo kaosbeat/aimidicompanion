@@ -1,0 +1,3 @@
+[submodule "server/ai-duet"]
+	path = server/ai-duet
+	url = git@github.com:kaosbeat/aiexperiments-ai-duet.git
