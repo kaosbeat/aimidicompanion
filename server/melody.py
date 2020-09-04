@@ -34,22 +34,24 @@ mid = MidiFile(type=0)
 midmemfile = BytesIO()
 track = MidiTrack()
 mid.tracks.append(track)
+notes = {}
+recording = False
 
+lastticks = 0
 
 def resetMidiFile():
     global mid
     global track
+    global ticks
     mid = MidiFile(type=0)
     # midmemfile = BytesIO()
     track = MidiTrack()
     mid.tracks.append(track)
-
+    ticks = 0
+    
 resetMidiFile()
 
-notes = {}
-recording = False
-ticks = 0
-lastticks = 0
+
 
 ewiseq = music_pb2.NoteSequence()
 
