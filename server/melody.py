@@ -158,6 +158,7 @@ def print_message(msg):
             #     print("sending out")
             #     # Ask the model to continue the sequence.
             #     sequence = melody_rnn.generate(ewiseq, generator_options)
+            deltaticks= ticks-lastticks
             track.append(Message('note_on', note=msg.note, velocity=msg.velocity, time=deltaticks))
             currentnote = msg.note 
 
@@ -165,6 +166,7 @@ def print_message(msg):
 
     if  (msg.type == 'note_off' or (msg.type == 'note_on' and msg.velocity == 0)):
         if (recording == True):
+            deltaticks = ticks-lastticks
             track.append(Message('note_off', note=msg.note, velocity=msg.velocity, time=deltaticks ))
 
 
