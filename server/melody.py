@@ -103,7 +103,7 @@ def print_message(msg):
             MetaMessage('set_tempo', tempo=tempotime)
     if (msg.type == 'control_change'):
         print(msg)
-        if (msg.control == 1):x
+        if (msg.control == 1):
             temperature = float(msg.value)
 
 
