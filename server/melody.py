@@ -1,6 +1,6 @@
 #impot midi
 import mido
-from mido import Message, MidiFile, MidiTrack
+from mido import Message, MidiFile, MidiTrack, MetaMessage
 import pretty_midi
 import note_seq
 import time
@@ -41,6 +41,7 @@ global mid
 global track
 global  ticks
 global recording
+global clocktime
 
 mid = MidiFile(type=0)
 # midmemfile = BytesIO()
@@ -52,6 +53,7 @@ lastticks = 0
 ticks =0
 # ewiseq = music_pb2.NoteSequence()
 currentscene = 'idlescreen'
+clocktime = time.time()
 
 def resetMidiFile():
     print("resetting midi")
@@ -85,26 +87,39 @@ def print_message(msg):
     global currentscene
     global f
     global temperature
+    global lasttime
+    global clocktime
+
     notetime = time.time()
     ticks = ticks + 1
+    if (msg.type == 'clock'):
+        curtime = time.time()
+        #print (ticks)
+        if (ticks%24 == 0):
+            #print ('interval = ' + str(10000*(curtime - clocktime)/60))
+            #print ("settempo = " + str(1000000*(curtime-clocktime)))
+            clocktime = curtime
+            tempotime =int(1000000*(curtime-clocktime))
+            MetaMessage('set_tempo', tempo=tempotime)
     if (msg.type == 'control_change'):
         print(msg)
-        if (msg.control == 1):
+        if (msg.control == 1):x
             temperature = float(msg.value)
 
 
-    if  (msg.type == 'note_on' or msg.type == 'note_off'):
+    if  ((msg.type == 'note_on' or msg.type == 'note_off') and recording == True):
         deltaticks = ticks-lastticks
 
     if  (msg.type == 'note_on'):
         # print(msg)
         notetick = ticks
-        if (msg.note == 70 and recording == True):
+        if (msg.note == 23 and recording == True):
             recording = False
             print ("STOPPING recording!")
             print(mid)
             mid.save('test.mid')
             ewiseq = magenta.music.midi_io.midi_file_to_sequence_proto('test.mid')
+            print(ewiseq)
             # print(len(ewiseq.notes))
             # print ("generating NOTES")
             startgen = time.time()
@@ -118,16 +133,18 @@ def print_message(msg):
             resetMidiFile()
             print (f.renderText('Gimme some input'))
 
-
-
         else:
-            recording = True
-            # print ("recording!")
+            if (recording == False):
+                recording = True
+                print ("recording!")
+                starttime = time.time()
+                starttick = ticks
+            # print(ticks)
             # ewiseq = music_pb2.NoteSequence() 
-            currentscene = 'recording'
+            # currentscene = 'recording'
             # print(currentscene + 'from midievent')
-            starttime = time.time()
-            starttick = ticks
+            
+            
 
         if (recording == True):
             # if (starttime - lasttime < 3 ):
@@ -152,6 +169,24 @@ def print_message(msg):
 
 
         # print ("we're having a " + str(msg.type)  + " note_off")
+
+
+def midiMessageHandle(msg):
+    global ticks
+    global lastticks
+    global notes
+    global recording
+    # global ewiseq
+    global mid
+    global track
+    global currentnote
+    global currentscene
+    global f
+    global temperature
+    notetime = time.time()
+    ticks = ticks + 1
+    if (msg.type == 'note_on'):
+        pass
 
 
 def generatestuff(input_sequence):
@@ -189,7 +224,7 @@ def generatestuff(input_sequence):
 
 
 inport.callback = print_message
-outport.send(mido.Message('note_on', note=50, velocity=113, time=6.2))
+# outport.send(mido.Message('note_on', note=50, velocity=113, time=6.2))
 
 
 
